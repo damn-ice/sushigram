@@ -1,0 +1,24 @@
+import React, { useState, useEffect } from "react"
+import { projectFirestore } from "../firebase/config"
+
+const useFirestore = (collection) => {
+    const [ docs, setDocs ] = useState([]);
+
+    useEffect(() => {
+        // snapshot event listener fired onchange of the snapshot... it was abstracted...
+        const unsub = projectFirestore.collection(collection).orderBy('createdAt', 'desc').onSnapshot(snap => {
+            let document = [];
+            snap.forEach(doc => {
+                document.push({ ...doc.data(), id: doc.id })
+            })
+            setDocs(document)
+        })
+
+        return () => unsub()
+
+    }, [collection])
+    
+    return { docs }
+}
+
+export default useFirestore
